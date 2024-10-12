@@ -5,8 +5,20 @@ import { FaCog, FaTimes } from 'react-icons/fa'; // 确保你已经安装了 rea
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState<string[]>([]);
-  const [showSeconds, setShowSeconds] = useState(true);
+  const [showSeconds, setShowSeconds] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('showSeconds');
+      return saved !== null ? JSON.parse(saved) : true;
+    }
+    return true;
+  });
   const [showSettings, setShowSettings] = useState(false);
+  const [fontColor, setFontColor] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('fontColor') || '#ffffff';
+    }
+    return '#ffffff';
+  });
 
   useEffect(() => {
     const updateTime = () => {
@@ -26,6 +38,14 @@ export default function Home() {
     return () => clearInterval(timerId);
   }, [showSeconds]);
 
+  useEffect(() => {
+    localStorage.setItem('showSeconds', JSON.stringify(showSeconds));
+  }, [showSeconds]);
+
+  useEffect(() => {
+    localStorage.setItem('fontColor', fontColor);
+  }, [fontColor]);
+
   const toggleSettings = () => setShowSettings(!showSettings);
 
   return (
@@ -33,7 +53,7 @@ export default function Home() {
       <div className="flex gap-2 w-full">
         {currentTime.map((char, index) => (
           <div key={index} className="flex-1 aspect-[2/3] bg-gray-800 rounded-lg flex items-center justify-center">
-            <span className="text-[7vw] sm:text-[7.5vw] md:text-[8vw] lg:text-[8.5vw] xl:text-[9vw] font-mono font-bold text-center tabular-nums clock-text">
+            <span className="text-[7vw] sm:text-[7.5vw] md:text-[8vw] lg:text-[8.5vw] xl:text-[9vw] font-mono font-bold text-center tabular-nums clock-text" style={{color: fontColor}}>
               {char}
             </span>
           </div>
@@ -43,22 +63,30 @@ export default function Home() {
         <FaCog size={24} />
       </button>
       {showSettings && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-gray-800 p-6 rounded-lg relative">
-            <button onClick={toggleSettings} className="absolute top-2 right-2 text-white hover:text-gray-300">
-              <FaTimes size={20} />
-            </button>
-            <h2 className="text-white text-xl mb-4">设置</h2>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="showSeconds"
-                checked={showSeconds}
-                onChange={() => setShowSeconds(!showSeconds)}
-                className="mr-2"
-              />
-              <label htmlFor="showSeconds" className="text-white">显示秒数</label>
-            </div>
+        <div className="absolute bottom-16 right-4 bg-gray-800 p-4 rounded-lg shadow-lg">
+          <button onClick={toggleSettings} className="absolute top-2 right-2 text-white hover:text-gray-300">
+            <FaTimes size={20} />
+          </button>
+          <h2 className="text-white text-xl mb-4">设置</h2>
+          <div className="flex items-center mb-4">
+            <input
+              type="checkbox"
+              id="showSeconds"
+              checked={showSeconds}
+              onChange={() => setShowSeconds(!showSeconds)}
+              className="mr-2"
+            />
+            <label htmlFor="showSeconds" className="text-white">显示秒数</label>
+          </div>
+          <div className="flex items-center">
+            <label htmlFor="fontColor" className="text-white mr-2">字体颜色:</label>
+            <input
+              type="color"
+              id="fontColor"
+              value={fontColor}
+              onChange={(e) => setFontColor(e.target.value)}
+              className="w-8 h-8 rounded"
+            />
           </div>
         </div>
       )}

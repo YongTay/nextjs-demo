@@ -75,7 +75,7 @@ export default function Home() {
           wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
           console.log('Wake Lock is active');
         } catch (err) {
-          console.error(`${err.name}, ${err.message}`);
+          console.error(err);
         }
       } else {
         console.log('Wake Lock API not supported');
@@ -103,7 +103,7 @@ export default function Home() {
             wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
             console.log('Wake Lock is active again');
           } catch (err) {
-            console.error(`${err.name}, ${err.message}`);
+            console.error(err);
           }
         }
       }

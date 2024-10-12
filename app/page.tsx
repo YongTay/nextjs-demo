@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FaCog, FaTimes, FaExpand, FaCompress, FaHourglassStart, FaPlay, FaStop, FaPause, FaClock } from 'react-icons/fa'; // 确保你已经安装了 react-icons
 
 export default function Home() {
@@ -40,6 +40,8 @@ export default function Home() {
   const [isPaused, setIsPaused] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
 
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -65,6 +67,54 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem('fontColor', fontColor);
   }, [fontColor]);
+
+  useEffect(() => {
+    const requestWakeLock = async () => {
+      if ('wakeLock' in navigator) {
+        try {
+          wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+          console.log('Wake Lock is active');
+        } catch (err) {
+          console.error(`${err.name}, ${err.message}`);
+        }
+      } else {
+        console.log('Wake Lock API not supported');
+      }
+    };
+
+    requestWakeLock();
+
+    return () => {
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release()
+          .then(() => {
+            wakeLockRef.current = null;
+            console.log('Wake Lock released');
+          });
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        if ('wakeLock' in navigator && !wakeLockRef.current) {
+          try {
+            wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+            console.log('Wake Lock is active again');
+          } catch (err) {
+            console.error(`${err.name}, ${err.message}`);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   useEffect(() => {
     const handleFullScreenChange = () => {

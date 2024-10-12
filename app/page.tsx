@@ -188,6 +188,7 @@ export default function Home() {
                 r="48"
                 cx="50"
                 cy="50"
+                strokeLinecap="round"
                 strokeDasharray="301.59"
                 strokeDashoffset={301.59 * (1 - calculateProgress())}
               />

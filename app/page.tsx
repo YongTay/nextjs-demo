@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaCog, FaTimes, FaExpand, FaCompress, FaHourglassStart, FaPlay } from 'react-icons/fa'; // 确保你已经安装了 react-icons
+import { FaCog, FaTimes, FaExpand, FaCompress, FaHourglassStart, FaPlay, FaStop, FaPause } from 'react-icons/fa'; // 确保你已经安装了 react-icons
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState<string[]>([]);
@@ -21,10 +21,23 @@ export default function Home() {
   });
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [showCountdown, setShowCountdown] = useState(false);
-  const [countdownMinutes, setCountdownMinutes] = useState(0);
-  const [countdownSeconds, setCountdownSeconds] = useState(0);
+  const [countdownMinutes, setCountdownMinutes] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('countdownMinutes');
+      return saved !== null ? parseInt(saved) : 0;
+    }
+    return 0;
+  });
+  const [countdownSeconds, setCountdownSeconds] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('countdownSeconds');
+      return saved !== null ? parseInt(saved) : 0;
+    }
+    return 0;
+  });
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [remainingTime, setRemainingTime] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -85,25 +98,50 @@ export default function Home() {
     const totalSeconds = countdownMinutes * 60 + countdownSeconds;
     setRemainingTime(totalSeconds);
     setIsCountingDown(true);
+    setIsPaused(false);
     setShowCountdown(false);
+  };
+
+  const stopCountdown = () => {
+    setIsCountingDown(false);
+    setRemainingTime(0);
+    setIsPaused(false);
+  };
+
+  const togglePause = () => {
+    setIsPaused(!isPaused);
   };
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (isCountingDown && remainingTime > 0) {
+    if (isCountingDown && remainingTime > 0 && !isPaused) {
       timer = setInterval(() => {
         setRemainingTime(prev => prev - 1);
       }, 1000);
     } else if (remainingTime === 0) {
       setIsCountingDown(false);
+      setIsPaused(false);
     }
     return () => clearInterval(timer);
-  }, [isCountingDown, remainingTime]);
+  }, [isCountingDown, remainingTime, isPaused]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  useEffect(() => {
+    localStorage.setItem('countdownMinutes', countdownMinutes.toString());
+  }, [countdownMinutes]);
+
+  useEffect(() => {
+    localStorage.setItem('countdownSeconds', countdownSeconds.toString());
+  }, [countdownSeconds]);
+
+  const calculateProgress = () => {
+    const totalSeconds = countdownMinutes * 60 + countdownSeconds;
+    return ((totalSeconds - remainingTime) / totalSeconds) * 100;
   };
 
   return (
@@ -120,9 +158,34 @@ export default function Home() {
       
       {isCountingDown && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <span className="text-[15vw] font-mono font-bold text-center tabular-nums clock-text" style={{color: fontColor}}>
-            {formatTime(remainingTime)}
-          </span>
+          <div className="relative">
+            <svg className="w-[50vw] h-[50vw]" viewBox="0 0 100 100">
+              <circle
+                className="text-gray-700"
+                strokeWidth="4"
+                stroke="currentColor"
+                fill="transparent"
+                r="48"
+                cx="50"
+                cy="50"
+              />
+              <circle
+                className="text-blue-500"
+                strokeWidth="4"
+                strokeDasharray={300}
+                strokeDashoffset={300 - (calculateProgress() / 100 * 300)}
+                strokeLinecap="round"
+                stroke="currentColor"
+                fill="transparent"
+                r="48"
+                cx="50"
+                cy="50"
+              />
+            </svg>
+            <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[8vw] font-mono font-bold text-center tabular-nums clock-text" style={{color: fontColor}}>
+              {formatTime(remainingTime)}
+            </span>
+          </div>
         </div>
       )}
 
@@ -132,9 +195,20 @@ export default function Home() {
       <button onClick={toggleFullScreen} className="absolute bottom-4 left-4 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
         {isFullScreen ? <FaCompress size={24} /> : <FaExpand size={24} />}
       </button>
-      <button onClick={toggleCountdown} className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
-        <FaHourglassStart size={24} />
-      </button>
+      {!isCountingDown ? (
+        <button onClick={toggleCountdown} className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
+          <FaHourglassStart size={24} />
+        </button>
+      ) : (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4">
+          <button onClick={stopCountdown} className="text-white bg-red-600 p-2 rounded-full hover:bg-red-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
+            <FaStop size={24} />
+          </button>
+          <button onClick={togglePause} className="text-white bg-yellow-600 p-2 rounded-full hover:bg-yellow-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
+            {isPaused ? <FaPlay size={24} /> : <FaPause size={24} />}
+          </button>
+        </div>
+      )}
       {showSettings && (
         <div className="absolute bottom-16 right-4 bg-gray-800 p-4 rounded-lg shadow-lg">
           <button onClick={toggleSettings} className="absolute top-2 right-2 text-white hover:text-gray-300">

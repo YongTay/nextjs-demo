@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaCog, FaTimes } from 'react-icons/fa'; // 确保你已经安装了 react-icons
+import { FaCog, FaTimes, FaExpand, FaCompress } from 'react-icons/fa'; // 确保你已经安装了 react-icons
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState<string[]>([]);
@@ -19,6 +19,7 @@ export default function Home() {
     }
     return '#ffffff';
   });
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -46,7 +47,29 @@ export default function Home() {
     localStorage.setItem('fontColor', fontColor);
   }, [fontColor]);
 
+  useEffect(() => {
+    const handleFullScreenChange = () => {
+      setIsFullScreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullScreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullScreenChange);
+    };
+  }, []);
+
   const toggleSettings = () => setShowSettings(!showSettings);
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-black px-[10%] relative">
@@ -61,6 +84,9 @@ export default function Home() {
       </div>
       <button onClick={toggleSettings} className="absolute bottom-4 right-4 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors">
         <FaCog size={24} />
+      </button>
+      <button onClick={toggleFullScreen} className="absolute bottom-4 left-4 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors">
+        {isFullScreen ? <FaCompress size={24} /> : <FaExpand size={24} />}
       </button>
       {showSettings && (
         <div className="absolute bottom-16 right-4 bg-gray-800 p-4 rounded-lg shadow-lg">

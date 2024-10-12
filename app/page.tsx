@@ -211,12 +211,21 @@ export default function Home() {
         </button>
       ) : (
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4">
-          <button onClick={stopCountdown} className="text-white bg-red-600 p-2 rounded-full hover:bg-red-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
-            <FaStop size={24} />
-          </button>
-          <button onClick={togglePause} className="text-white bg-yellow-600 p-2 rounded-full hover:bg-yellow-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
-            {isPaused ? <FaPlay size={24} /> : <FaPause size={24} />}
-          </button>
+          {isCountingDown && !isFinished && (
+            <>
+              <button onClick={stopCountdown} className="text-white bg-red-600 p-2 rounded-full hover:bg-red-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
+                <FaStop size={24} />
+              </button>
+              <button onClick={togglePause} className="text-white bg-yellow-600 p-2 rounded-full hover:bg-yellow-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
+                {isPaused ? <FaPlay size={24} /> : <FaPause size={24} />}
+              </button>
+            </>
+          )}
+          {isFinished && (
+            <button onClick={restartCountdown} className="text-white bg-green-600 p-2 rounded-full hover:bg-green-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
+              <FaPlay size={24} />
+            </button>
+          )}
         </div>
       )}
       {showSettings && (

@@ -39,6 +39,12 @@ export default function Home() {
   const [remainingTime, setRemainingTime] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
+  const [progressColor, setProgressColor] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('progressColor') || '#3b82f6'; // 默认蓝色
+    }
+    return '#3b82f6';
+  });
 
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
@@ -207,6 +213,25 @@ export default function Home() {
     setIsFinished(false);
   };
 
+  const resetAllSettings = () => {
+    setShowSeconds(true);
+    setFontColor('#ffffff');
+    setProgressColor('#3b82f6');
+    setCountdownMinutes(0);
+    setCountdownSeconds(0);
+    
+    // 更新 localStorage
+    localStorage.setItem('showSeconds', JSON.stringify(true));
+    localStorage.setItem('fontColor', '#ffffff');
+    localStorage.setItem('progressColor', '#3b82f6');
+    localStorage.setItem('countdownMinutes', '0');
+    localStorage.setItem('countdownSeconds', '0');
+  };
+
+  useEffect(() => {
+    localStorage.setItem('progressColor', progressColor);
+  }, [progressColor]);
+
   return (
     <main className="flex flex-col min-h-screen bg-black px-[10%] relative">
       {!(isCountingDown || isFinished) && (
@@ -235,9 +260,9 @@ export default function Home() {
                 cy="50"
               />
               <circle
-                className="text-blue-500 transition-all duration-1000 ease-linear"
+                className="transition-all duration-1000 ease-linear"
                 strokeWidth="8"
-                stroke="currentColor"
+                stroke={progressColor}
                 fill="transparent"
                 r="44"
                 cx="50"
@@ -306,7 +331,7 @@ export default function Home() {
             />
             <label htmlFor="showSeconds" className="text-white">显示秒数</label>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center mb-4">
             <label htmlFor="fontColor" className="text-white mr-2">字体颜色:</label>
             <input
               type="color"
@@ -316,6 +341,22 @@ export default function Home() {
               className="w-8 h-8 rounded"
             />
           </div>
+          <div className="flex items-center mb-4">
+            <label htmlFor="progressColor" className="text-white mr-2">进度条颜色:</label>
+            <input
+              type="color"
+              id="progressColor"
+              value={progressColor}
+              onChange={(e) => setProgressColor(e.target.value)}
+              className="w-8 h-8 rounded"
+            />
+          </div>
+          <button
+            onClick={resetAllSettings}
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full mt-4"
+          >
+            重置所有设置
+          </button>
         </div>
       )}
       {showCountdown && (

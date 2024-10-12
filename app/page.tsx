@@ -168,26 +168,35 @@ export default function Home() {
     setShowSeconds(true);
     setFontColor('#ffffff');
     setProgressColor('#3b82f6');
-    setCountdownMinutes(0);
-    setCountdownSeconds(0);
-    setFontSize(5);
     setClockFontSize(5);
     setCountdownFontSize(5);
     
-    // 更新 localStorage
     localStorage.setItem('showSeconds', JSON.stringify(true));
     localStorage.setItem('fontColor', '#ffffff');
     localStorage.setItem('progressColor', '#3b82f6');
-    localStorage.setItem('countdownMinutes', '0');
-    localStorage.setItem('countdownSeconds', '0');
-    localStorage.setItem('fontSize', '5');
     localStorage.setItem('clockFontSize', '5');
     localStorage.setItem('countdownFontSize', '5');
   };
 
   useEffect(() => {
+    localStorage.setItem('showSeconds', JSON.stringify(showSeconds));
+  }, [showSeconds]);
+
+  useEffect(() => {
+    localStorage.setItem('fontColor', fontColor);
+  }, [fontColor]);
+
+  useEffect(() => {
     localStorage.setItem('progressColor', progressColor);
   }, [progressColor]);
+
+  useEffect(() => {
+    localStorage.setItem('clockFontSize', clockFontSize.toString());
+  }, [clockFontSize]);
+
+  useEffect(() => {
+    localStorage.setItem('countdownFontSize', countdownFontSize.toString());
+  }, [countdownFontSize]);
 
   const closeCountdown = () => {
     setIsCountingDown(false);

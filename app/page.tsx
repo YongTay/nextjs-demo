@@ -3,17 +3,18 @@
 import { useState, useEffect } from 'react';
 
 export default function Home() {
-  const [currentTime, setCurrentTime] = useState<string>('');
+  const [currentTime, setCurrentTime] = useState<string[]>([]);
 
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      setCurrentTime(now.toLocaleTimeString('zh-CN', {
+      const timeString = now.toLocaleTimeString('zh-CN', {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
         hour12: false
-      }));
+      });
+      setCurrentTime(timeString.split(''));
     };
 
     updateTime();
@@ -23,9 +24,17 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="text-6xl sm:text-8xl md:text-9xl lg:text-[10rem] xl:text-[12rem] font-mono font-bold text-blue-600 text-center tabular-nums">
-        {currentTime}
+    <main className="flex min-h-screen items-center justify-center bg-black p-4">
+      <div className="flex w-full max-w-[90vw] justify-between">
+        {currentTime.map((char, index) => (
+          <div key={index} className="flex-1">
+            <div className="aspect-square bg-gray-800 rounded-lg flex items-center justify-center">
+              <span className="text-[8vw] sm:text-[10vw] md:text-[12vw] lg:text-[14vw] xl:text-[16vw] font-mono font-bold text-center tabular-nums clock-text">
+                {char}
+              </span>
+            </div>
+          </div>
+        ))}
       </div>
     </main>
   );

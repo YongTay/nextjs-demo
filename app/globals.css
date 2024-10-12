@@ -31,3 +31,12 @@ body {
     text-wrap: balance;
   }
 }
+
+.clock-text {
+  color: #ffffff;
+  display: inline-block;
+}
+
+.bg-black {
+  background-color: #000000;
+}

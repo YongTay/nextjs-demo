@@ -1,10 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { FaCog, FaTimes, FaExpand, FaCompress, FaHourglassStart, FaPlay, FaRedo, FaPause, FaClock } from 'react-icons/fa'; // 确保你已经安装了 react-icons
+import Clock from './components/Clock';
+import Countdown from './components/Countdown';
+import ControlButtons from './components/ControlButtons';
+import SettingsPanel from './components/SettingsPanel';
+import CountdownSetup from './components/CountdownSetup';
+import useWakeLock from './hooks/useWakeLock';
 
 export default function Home() {
-  const [currentTime, setCurrentTime] = useState<string[]>([]);
   const [showSeconds, setShowSeconds] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('showSeconds');
@@ -41,86 +45,12 @@ export default function Home() {
   const [isFinished, setIsFinished] = useState(false);
   const [progressColor, setProgressColor] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('progressColor') || '#3b82f6'; // 默认蓝色
+      return localStorage.getItem('progressColor') || '#3b82f6';
     }
     return '#3b82f6';
   });
 
-  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const timeString = now.toLocaleTimeString('zh-CN', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: showSeconds ? '2-digit' : undefined,
-        hour12: false
-      });
-      setCurrentTime(timeString.split(''));
-    };
-
-    updateTime();
-    const timerId = setInterval(updateTime, 1000);
-
-    return () => clearInterval(timerId);
-  }, [showSeconds]);
-
-  useEffect(() => {
-    localStorage.setItem('showSeconds', JSON.stringify(showSeconds));
-  }, [showSeconds]);
-
-  useEffect(() => {
-    localStorage.setItem('fontColor', fontColor);
-  }, [fontColor]);
-
-  useEffect(() => {
-    const requestWakeLock = async () => {
-      if ('wakeLock' in navigator) {
-        try {
-          wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
-          console.log('Wake Lock is active');
-        } catch (err) {
-          console.error(err);
-        }
-      } else {
-        console.log('Wake Lock API not supported');
-      }
-    };
-
-    requestWakeLock();
-
-    return () => {
-      if (wakeLockRef.current) {
-        wakeLockRef.current.release()
-          .then(() => {
-            wakeLockRef.current = null;
-            console.log('Wake Lock released');
-          });
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible') {
-        if ('wakeLock' in navigator && !wakeLockRef.current) {
-          try {
-            wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
-            console.log('Wake Lock is active again');
-          } catch (err) {
-            console.error(err);
-          }
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
+  useWakeLock();
 
   useEffect(() => {
     const handleFullScreenChange = () => {
@@ -241,172 +171,57 @@ export default function Home() {
   return (
     <main className="flex flex-col min-h-screen bg-black px-[10%] relative">
       {!(isCountingDown || isFinished) && (
-        <div className="flex gap-2 w-full h-screen items-center">
-          {currentTime.map((char, index) => (
-            <div key={index} className="flex-1 aspect-[2/3] bg-gray-800 rounded-lg flex items-center justify-center">
-              <span className="text-[7vw] sm:text-[7.5vw] md:text-[8vw] lg:text-[8.5vw] xl:text-[9vw] font-mono font-bold text-center tabular-nums clock-text" style={{color: fontColor}}>
-                {char}
-              </span>
-            </div>
-          ))}
-        </div>
+        <Clock showSeconds={showSeconds} fontColor={fontColor} />
       )}
       
       {(isCountingDown || isFinished) && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] max-w-[80vh] max-h-[80vh]">
-          <div className="relative w-full h-full">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle
-                className="text-gray-700"
-                strokeWidth="8"
-                stroke="currentColor"
-                fill="transparent"
-                r="44"
-                cx="50"
-                cy="50"
-              />
-              <circle
-                className="transition-all duration-1000 ease-linear"
-                strokeWidth="8"
-                stroke={progressColor}
-                fill="transparent"
-                r="44"
-                cx="50"
-                cy="50"
-                strokeLinecap="round"
-                strokeDasharray="276.46"
-                strokeDashoffset={276.46 * (1 - calculateProgress())}
-              />
-            </svg>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full">
-              <span className="text-[12vw] sm:text-[10vw] md:text-[8vw] lg:text-[6vw] xl:text-[5vw] font-mono font-bold tabular-nums clock-text" style={{color: fontColor}}>
-                {isFinished ? formatTime(countdownMinutes * 60 + countdownSeconds) : formatTime(remainingTime)}
-              </span>
-            </div>
-          </div>
-        </div>
+        <Countdown
+          remainingTime={remainingTime}
+          isFinished={isFinished}
+          countdownMinutes={countdownMinutes}
+          countdownSeconds={countdownSeconds}
+          fontColor={fontColor}
+          progressColor={progressColor}
+        />
       )}
 
-      <button onClick={toggleSettings} className="absolute bottom-4 right-4 text-white bg-gray-800 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
-        <FaCog size={24} />
-      </button>
-      <button onClick={toggleFullScreen} className="absolute bottom-4 left-4 text-white bg-gray-800 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
-        {isFullScreen ? <FaCompress size={24} /> : <FaExpand size={24} />}
-      </button>
-      {!(isCountingDown || isFinished) ? (
-        <button onClick={toggleCountdown} className="absolute top-1/2 right-4 transform -translate-y-1/2 text-white bg-blue-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
-          <FaHourglassStart size={24} />
-        </button>
-      ) : (
-        <div className="absolute top-1/2 right-4 transform -translate-y-1/2 flex flex-col space-y-4">
-          {isCountingDown && !isFinished && (
-            <>
-              <button onClick={resetCountdown} className="text-white bg-blue-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
-                <FaRedo size={24} />
-              </button>
-              <button onClick={togglePause} className="text-white bg-yellow-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
-                {isPaused ? <FaPlay size={24} /> : <FaPause size={24} />}
-              </button>
-              <button onClick={closeCountdown} className="text-white bg-red-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
-                <FaTimes size={24} />
-              </button>
-            </>
-          )}
-          {isFinished && (
-            <>
-              <button onClick={restartCountdown} className="text-white bg-green-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
-                <FaPlay size={24} />
-              </button>
-              <button onClick={showCurrentTime} className="text-white bg-blue-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
-                <FaClock size={24} />
-              </button>
-            </>
-          )}
-        </div>
-      )}
+      <ControlButtons
+        isCountingDown={isCountingDown}
+        isFinished={isFinished}
+        isPaused={isPaused}
+        toggleSettings={toggleSettings}
+        toggleFullScreen={toggleFullScreen}
+        isFullScreen={isFullScreen}
+        toggleCountdown={toggleCountdown}
+        resetCountdown={resetCountdown}
+        togglePause={togglePause}
+        closeCountdown={closeCountdown}
+        restartCountdown={restartCountdown}
+        showCurrentTime={showCurrentTime}
+      />
+
       {showSettings && (
-        <div className="absolute bottom-16 right-4 bg-gray-800 p-4 rounded-lg shadow-lg">
-          <button onClick={toggleSettings} className="absolute top-2 right-2 text-white hover:text-gray-300">
-            <FaTimes size={20} />
-          </button>
-          <h2 className="text-white text-xl mb-4">设置</h2>
-          <div className="flex items-center mb-4">
-            <input
-              type="checkbox"
-              id="showSeconds"
-              checked={showSeconds}
-              onChange={() => setShowSeconds(!showSeconds)}
-              className="mr-2"
-            />
-            <label htmlFor="showSeconds" className="text-white">显示秒数</label>
-          </div>
-          <div className="flex items-center mb-4">
-            <label htmlFor="fontColor" className="text-white mr-2">字体颜色:</label>
-            <input
-              type="color"
-              id="fontColor"
-              value={fontColor}
-              onChange={(e) => setFontColor(e.target.value)}
-              className="w-8 h-8 rounded"
-            />
-          </div>
-          <div className="flex items-center mb-4">
-            <label htmlFor="progressColor" className="text-white mr-2">进度条颜色:</label>
-            <input
-              type="color"
-              id="progressColor"
-              value={progressColor}
-              onChange={(e) => setProgressColor(e.target.value)}
-              className="w-8 h-8 rounded"
-            />
-          </div>
-          <button
-            onClick={resetAllSettings}
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full mt-4"
-          >
-            重置所有设置
-          </button>
-        </div>
+        <SettingsPanel
+          showSeconds={showSeconds}
+          setShowSeconds={setShowSeconds}
+          fontColor={fontColor}
+          setFontColor={setFontColor}
+          progressColor={progressColor}
+          setProgressColor={setProgressColor}
+          resetAllSettings={resetAllSettings}
+          toggleSettings={toggleSettings}
+        />
       )}
+
       {showCountdown && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-gray-800 p-6 rounded-lg relative">
-            <button onClick={() => setShowCountdown(false)} className="absolute top-2 right-2 text-white hover:text-gray-300">
-              <FaTimes size={20} />
-            </button>
-            <h2 className="text-white text-xl mb-4">设置倒计时</h2>
-            <div className="flex items-center mb-4">
-              <label htmlFor="minutes" className="text-white mr-2">分钟:</label>
-              <input
-                type="number"
-                id="minutes"
-                value={countdownMinutes}
-                onChange={(e) => setCountdownMinutes(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-16 p-1 text-black"
-                min="0"
-              />
-            </div>
-            <div className="flex items-center mb-4">
-              <label htmlFor="seconds" className="text-white mr-2">秒数:</label>
-              <input
-                type="number"
-                id="seconds"
-                value={countdownSeconds}
-                onChange={(e) => setCountdownSeconds(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))}
-                className="w-16 p-1 text-black"
-                min="0"
-                max="59"
-              />
-            </div>
-            <button
-              onClick={startCountdown}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              <FaPlay className="inline-block mr-2" />
-              开始倒计时
-            </button>
-          </div>
-        </div>
+        <CountdownSetup
+          countdownMinutes={countdownMinutes}
+          setCountdownMinutes={setCountdownMinutes}
+          countdownSeconds={countdownSeconds}
+          setCountdownSeconds={setCountdownSeconds}
+          startCountdown={startCountdown}
+          setShowCountdown={setShowCountdown}
+        />
       )}
     </main>
   );

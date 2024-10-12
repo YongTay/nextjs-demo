@@ -173,34 +173,36 @@ export default function Home() {
       )}
       
       {(isCountingDown || isFinished) && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <div className="relative">
-            <svg className="w-[50vw] h-[50vw] -rotate-90" viewBox="0 0 100 100">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] max-w-[80vh] max-h-[80vh]">
+          <div className="relative w-full h-full">
+            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
               <circle
                 className="text-gray-700"
-                strokeWidth="4"
+                strokeWidth="8"
                 stroke="currentColor"
                 fill="transparent"
-                r="48"
+                r="44"
                 cx="50"
                 cy="50"
               />
               <circle
                 className="text-blue-500 transition-all duration-1000 ease-linear"
-                strokeWidth="4"
+                strokeWidth="8"
                 stroke="currentColor"
                 fill="transparent"
-                r="48"
+                r="44"
                 cx="50"
                 cy="50"
                 strokeLinecap="round"
-                strokeDasharray="301.59"
-                strokeDashoffset={301.59 * (1 - calculateProgress())}
+                strokeDasharray="276.46"
+                strokeDashoffset={276.46 * (1 - calculateProgress())}
               />
             </svg>
-            <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[8vw] font-mono font-bold text-center tabular-nums clock-text" style={{color: fontColor}}>
-              {isFinished ? formatTime(countdownMinutes * 60 + countdownSeconds) : formatTime(remainingTime)}
-            </span>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full">
+              <span className="text-[12vw] sm:text-[10vw] md:text-[8vw] lg:text-[6vw] xl:text-[5vw] font-mono font-bold tabular-nums clock-text" style={{color: fontColor}}>
+                {isFinished ? formatTime(countdownMinutes * 60 + countdownSeconds) : formatTime(remainingTime)}
+              </span>
+            </div>
           </div>
         </div>
       )}

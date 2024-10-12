@@ -51,24 +51,24 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
               />
               <label htmlFor="showSeconds" className="text-white text-lg">显示秒数</label>
             </div>
-            <div>
+            <div className="flex">
               <label htmlFor="fontColor" className="text-white text-lg block mb-2">字体颜色:</label>
               <input
                 type="color"
                 id="fontColor"
                 value={fontColor}
                 onChange={(e) => setFontColor(e.target.value)}
-                className="w-full h-10 rounded"
+                className="w-10 h-10 rounded ml-2"
               />
             </div>
-            <div>
+            <div className="flex">
               <label htmlFor="progressColor" className="text-white text-lg block mb-2">进度条颜色:</label>
               <input
                 type="color"
                 id="progressColor"
                 value={progressColor}
                 onChange={(e) => setProgressColor(e.target.value)}
-                className="w-full h-10 rounded"
+                className="w-10 h-10 rounded ml-2"
               />
             </div>
             <div>

@@ -23,6 +23,8 @@ export default function Home() {
   const [showCountdown, setShowCountdown] = useState(false);
   const [countdownMinutes, setCountdownMinutes] = useState(0);
   const [countdownSeconds, setCountdownSeconds] = useState(0);
+  const [isCountingDown, setIsCountingDown] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(0);
 
   useEffect(() => {
     const updateTime = () => {
@@ -80,22 +82,50 @@ export default function Home() {
   };
 
   const startCountdown = () => {
-    // 这里添加开始倒计时的逻辑
-    console.log(`Starting countdown: ${countdownMinutes} minutes and ${countdownSeconds} seconds`);
+    const totalSeconds = countdownMinutes * 60 + countdownSeconds;
+    setRemainingTime(totalSeconds);
+    setIsCountingDown(true);
     setShowCountdown(false);
   };
 
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isCountingDown && remainingTime > 0) {
+      timer = setInterval(() => {
+        setRemainingTime(prev => prev - 1);
+      }, 1000);
+    } else if (remainingTime === 0) {
+      setIsCountingDown(false);
+    }
+    return () => clearInterval(timer);
+  }, [isCountingDown, remainingTime]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
-    <main className="flex min-h-screen items-center justify-center bg-black px-[10%] relative">
-      <div className="flex gap-2 w-full">
+    <main className="flex flex-col min-h-screen bg-black px-[10%] relative">
+      <div className={`flex gap-2 w-full ${isCountingDown ? 'h-[20vh] items-start pt-4' : 'h-screen items-center'} transition-all duration-500`}>
         {currentTime.map((char, index) => (
-          <div key={index} className="flex-1 aspect-[2/3] bg-gray-800 rounded-lg flex items-center justify-center">
-            <span className="text-[7vw] sm:text-[7.5vw] md:text-[8vw] lg:text-[8.5vw] xl:text-[9vw] font-mono font-bold text-center tabular-nums clock-text" style={{color: fontColor}}>
+          <div key={index} className={`flex-1 ${isCountingDown ? 'aspect-[2/1]' : 'aspect-[2/3]'} bg-gray-800 rounded-lg flex items-center justify-center transition-all duration-500`}>
+            <span className={`${isCountingDown ? 'text-[3vw] sm:text-[3.5vw] md:text-[4vw] lg:text-[4.5vw] xl:text-[5vw]' : 'text-[7vw] sm:text-[7.5vw] md:text-[8vw] lg:text-[8.5vw] xl:text-[9vw]'} font-mono font-bold text-center tabular-nums clock-text transition-all duration-500`} style={{color: fontColor}}>
               {char}
             </span>
           </div>
         ))}
       </div>
+      
+      {isCountingDown && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <span className="text-[15vw] font-mono font-bold text-center tabular-nums clock-text" style={{color: fontColor}}>
+            {formatTime(remainingTime)}
+          </span>
+        </div>
+      )}
+
       <button onClick={toggleSettings} className="absolute bottom-4 right-4 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
         <FaCog size={24} />
       </button>

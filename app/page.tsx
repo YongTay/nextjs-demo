@@ -24,15 +24,13 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-black p-4">
-      <div className="flex w-full max-w-[90vw] justify-between">
+    <main className="flex min-h-screen items-center justify-center bg-black px-[10%]">
+      <div className="flex gap-2 w-full">
         {currentTime.map((char, index) => (
-          <div key={index} className="flex-1">
-            <div className="aspect-square bg-gray-800 rounded-lg flex items-center justify-center">
-              <span className="text-[8vw] sm:text-[10vw] md:text-[12vw] lg:text-[14vw] xl:text-[16vw] font-mono font-bold text-center tabular-nums clock-text">
-                {char}
-              </span>
-            </div>
+          <div key={index} className="flex-1 aspect-[3/4] bg-gray-800 rounded-lg flex items-center justify-center">
+            <span className="text-[3vw] sm:text-[3.5vw] md:text-[4vw] lg:text-[4.5vw] xl:text-[5vw] font-mono font-bold text-center tabular-nums clock-text">
+              {char}
+            </span>
           </div>
         ))}
       </div>

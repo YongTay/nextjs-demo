@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaCog, FaTimes, FaExpand, FaCompress, FaHourglassStart, FaPlay, FaStop, FaPause } from 'react-icons/fa'; // 确保你已经安装了 react-icons
+import { FaCog, FaTimes, FaExpand, FaCompress, FaHourglassStart, FaPlay, FaStop, FaPause, FaClock } from 'react-icons/fa'; // 确保你已经安装了 react-icons
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState<string[]>([]);
@@ -153,6 +153,11 @@ export default function Home() {
     setIsPaused(false);
   };
 
+  const showCurrentTime = () => {
+    setIsCountingDown(false);
+    setIsFinished(false);
+  };
+
   return (
     <main className="flex flex-col min-h-screen bg-black px-[10%] relative">
       {!(isCountingDown || isFinished) && (
@@ -223,9 +228,14 @@ export default function Home() {
             </>
           )}
           {isFinished && (
-            <button onClick={restartCountdown} className="text-white bg-green-600 p-2 rounded-full hover:bg-green-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
-              <FaPlay size={24} />
-            </button>
+            <>
+              <button onClick={restartCountdown} className="text-white bg-green-600 p-2 rounded-full hover:bg-green-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
+                <FaPlay size={24} />
+              </button>
+              <button onClick={showCurrentTime} className="text-white bg-blue-600 p-2 rounded-full hover:bg-blue-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
+                <FaClock size={24} />
+              </button>
+            </>
           )}
         </div>
       )}

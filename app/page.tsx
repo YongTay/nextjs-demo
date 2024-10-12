@@ -38,6 +38,7 @@ export default function Home() {
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [remainingTime, setRemainingTime] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -118,7 +119,8 @@ export default function Home() {
       timer = setInterval(() => {
         setRemainingTime(prev => prev - 1);
       }, 1000);
-    } else if (remainingTime === 0) {
+    } else if (remainingTime === 0 && isCountingDown) {
+      setIsFinished(true);
       setIsCountingDown(false);
       setIsPaused(false);
     }
@@ -144,19 +146,28 @@ export default function Home() {
     return 1 - (remainingTime / totalSeconds);
   };
 
+  const restartCountdown = () => {
+    setRemainingTime(countdownMinutes * 60 + countdownSeconds);
+    setIsCountingDown(true);
+    setIsFinished(false);
+    setIsPaused(false);
+  };
+
   return (
     <main className="flex flex-col min-h-screen bg-black px-[10%] relative">
-      <div className={`flex gap-2 w-full ${isCountingDown ? 'h-[20vh] items-start pt-4' : 'h-screen items-center'} transition-all duration-500`}>
-        {currentTime.map((char, index) => (
-          <div key={index} className={`flex-1 ${isCountingDown ? 'aspect-[2/1]' : 'aspect-[2/3]'} bg-gray-800 rounded-lg flex items-center justify-center transition-all duration-500`}>
-            <span className={`${isCountingDown ? 'text-[3vw] sm:text-[3.5vw] md:text-[4vw] lg:text-[4.5vw] xl:text-[5vw]' : 'text-[7vw] sm:text-[7.5vw] md:text-[8vw] lg:text-[8.5vw] xl:text-[9vw]'} font-mono font-bold text-center tabular-nums clock-text transition-all duration-500`} style={{color: fontColor}}>
-              {char}
-            </span>
-          </div>
-        ))}
-      </div>
+      {!(isCountingDown || isFinished) && (
+        <div className="flex gap-2 w-full h-screen items-center">
+          {currentTime.map((char, index) => (
+            <div key={index} className="flex-1 aspect-[2/3] bg-gray-800 rounded-lg flex items-center justify-center">
+              <span className="text-[7vw] sm:text-[7.5vw] md:text-[8vw] lg:text-[8.5vw] xl:text-[9vw] font-mono font-bold text-center tabular-nums clock-text" style={{color: fontColor}}>
+                {char}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
       
-      {isCountingDown && (
+      {(isCountingDown || isFinished) && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
           <div className="relative">
             <svg className="w-[50vw] h-[50vw] -rotate-90" viewBox="0 0 100 100">
@@ -179,13 +190,10 @@ export default function Home() {
                 cy="50"
                 strokeDasharray="301.59"
                 strokeDashoffset={301.59 * (1 - calculateProgress())}
-                style={{
-                  stroke: `hsl(${210 * (1 - calculateProgress())}, 100%, ${50 + 50 * calculateProgress()}%)`
-                }}
               />
             </svg>
             <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[8vw] font-mono font-bold text-center tabular-nums clock-text" style={{color: fontColor}}>
-              {formatTime(remainingTime)}
+              {isFinished ? formatTime(countdownMinutes * 60 + countdownSeconds) : formatTime(remainingTime)}
             </span>
           </div>
         </div>
@@ -197,7 +205,7 @@ export default function Home() {
       <button onClick={toggleFullScreen} className="absolute bottom-4 left-4 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
         {isFullScreen ? <FaCompress size={24} /> : <FaExpand size={24} />}
       </button>
-      {!isCountingDown ? (
+      {!(isCountingDown || isFinished) ? (
         <button onClick={toggleCountdown} className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
           <FaHourglassStart size={24} />
         </button>

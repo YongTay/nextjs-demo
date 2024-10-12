@@ -49,6 +49,27 @@ export default function Home() {
     }
     return '#3b82f6';
   });
+  const [fontSize, setFontSize] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('fontSize');
+      return saved !== null ? Number(saved) : 5; // 默认值为5
+    }
+    return 5;
+  });
+  const [clockFontSize, setClockFontSize] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('clockFontSize');
+      return saved !== null ? Number(saved) : 5; // 默认值为5
+    }
+    return 5;
+  });
+  const [countdownFontSize, setCountdownFontSize] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('countdownFontSize');
+      return saved !== null ? Number(saved) : 5; // 默认值为5
+    }
+    return 5;
+  });
 
   useWakeLock();
 
@@ -149,6 +170,9 @@ export default function Home() {
     setProgressColor('#3b82f6');
     setCountdownMinutes(0);
     setCountdownSeconds(0);
+    setFontSize(5);
+    setClockFontSize(5);
+    setCountdownFontSize(5);
     
     // 更新 localStorage
     localStorage.setItem('showSeconds', JSON.stringify(true));
@@ -156,6 +180,9 @@ export default function Home() {
     localStorage.setItem('progressColor', '#3b82f6');
     localStorage.setItem('countdownMinutes', '0');
     localStorage.setItem('countdownSeconds', '0');
+    localStorage.setItem('fontSize', '5');
+    localStorage.setItem('clockFontSize', '5');
+    localStorage.setItem('countdownFontSize', '5');
   };
 
   useEffect(() => {
@@ -171,7 +198,7 @@ export default function Home() {
   return (
     <main className="flex flex-col min-h-screen bg-black px-[10%] relative">
       {!(isCountingDown || isFinished) && (
-        <Clock showSeconds={showSeconds} fontColor={fontColor} />
+        <Clock showSeconds={showSeconds} fontColor={fontColor} fontSize={clockFontSize} />
       )}
       
       {(isCountingDown || isFinished) && (
@@ -182,6 +209,7 @@ export default function Home() {
           countdownSeconds={countdownSeconds}
           fontColor={fontColor}
           progressColor={progressColor}
+          fontSize={countdownFontSize}
         />
       )}
 
@@ -208,6 +236,10 @@ export default function Home() {
           setFontColor={setFontColor}
           progressColor={progressColor}
           setProgressColor={setProgressColor}
+          clockFontSize={clockFontSize}
+          setClockFontSize={setClockFontSize}
+          countdownFontSize={countdownFontSize}
+          setCountdownFontSize={setCountdownFontSize}
           resetAllSettings={resetAllSettings}
           toggleSettings={toggleSettings}
         />

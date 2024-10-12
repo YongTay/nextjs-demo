@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 interface ClockProps {
   showSeconds: boolean;
   fontColor: string;
+  fontSize: number;
 }
 
-const Clock: React.FC<ClockProps> = ({ showSeconds, fontColor }) => {
+const Clock: React.FC<ClockProps> = ({ showSeconds, fontColor, fontSize }) => {
   const [currentTime, setCurrentTime] = useState<string[]>([]);
 
   useEffect(() => {
@@ -30,7 +31,13 @@ const Clock: React.FC<ClockProps> = ({ showSeconds, fontColor }) => {
     <div className="flex gap-2 w-full h-screen items-center">
       {currentTime.map((char, index) => (
         <div key={index} className="flex-1 aspect-[2/3] bg-gray-800 rounded-lg flex items-center justify-center">
-          <span className="text-[7vw] sm:text-[7.5vw] md:text-[8vw] lg:text-[8.5vw] xl:text-[9vw] font-mono font-bold text-center tabular-nums clock-text" style={{color: fontColor}}>
+          <span 
+            className="font-mono font-bold text-center tabular-nums clock-text" 
+            style={{
+              color: fontColor,
+              fontSize: `${fontSize * 1.5}vw`
+            }}
+          >
             {char}
           </span>
         </div>

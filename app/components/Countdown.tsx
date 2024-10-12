@@ -7,6 +7,7 @@ interface CountdownProps {
   countdownSeconds: number;
   fontColor: string;
   progressColor: string;
+  fontSize: number;
 }
 
 const Countdown: React.FC<CountdownProps> = ({
@@ -15,7 +16,8 @@ const Countdown: React.FC<CountdownProps> = ({
   countdownMinutes,
   countdownSeconds,
   fontColor,
-  progressColor
+  progressColor,
+  fontSize
 }) => {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -55,7 +57,13 @@ const Countdown: React.FC<CountdownProps> = ({
           />
         </svg>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full">
-          <span className="text-[12vw] sm:text-[10vw] md:text-[8vw] lg:text-[6vw] xl:text-[5vw] font-mono font-bold tabular-nums clock-text" style={{color: fontColor}}>
+          <span 
+            className="font-mono font-bold tabular-nums clock-text" 
+            style={{
+              color: fontColor,
+              fontSize: `${fontSize * 1.5}vw`
+            }}
+          >
             {isFinished ? formatTime(countdownMinutes * 60 + countdownSeconds) : formatTime(remainingTime)}
           </span>
         </div>

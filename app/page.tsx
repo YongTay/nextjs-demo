@@ -141,7 +141,7 @@ export default function Home() {
 
   const calculateProgress = () => {
     const totalSeconds = countdownMinutes * 60 + countdownSeconds;
-    return ((totalSeconds - remainingTime) / totalSeconds) * 100;
+    return 1 - (remainingTime / totalSeconds);
   };
 
   return (
@@ -159,7 +159,7 @@ export default function Home() {
       {isCountingDown && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
           <div className="relative">
-            <svg className="w-[50vw] h-[50vw]" viewBox="0 0 100 100">
+            <svg className="w-[50vw] h-[50vw] -rotate-90" viewBox="0 0 100 100">
               <circle
                 className="text-gray-700"
                 strokeWidth="4"
@@ -170,16 +170,18 @@ export default function Home() {
                 cy="50"
               />
               <circle
-                className="text-blue-500"
+                className="text-blue-500 transition-all duration-1000 ease-linear"
                 strokeWidth="4"
-                strokeDasharray={300}
-                strokeDashoffset={300 - (calculateProgress() / 100 * 300)}
-                strokeLinecap="round"
                 stroke="currentColor"
                 fill="transparent"
                 r="48"
                 cx="50"
                 cy="50"
+                strokeDasharray="301.59"
+                strokeDashoffset={301.59 * (1 - calculateProgress())}
+                style={{
+                  stroke: `hsl(${210 * (1 - calculateProgress())}, 100%, ${50 + 50 * calculateProgress()}%)`
+                }}
               />
             </svg>
             <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[8vw] font-mono font-bold text-center tabular-nums clock-text" style={{color: fontColor}}>

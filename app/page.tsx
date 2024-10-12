@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { FaCog, FaTimes, FaExpand, FaCompress, FaHourglassStart, FaPlay, FaStop, FaPause, FaClock } from 'react-icons/fa'; // 确保你已经安装了 react-icons
+import { FaCog, FaTimes, FaExpand, FaCompress, FaHourglassStart, FaPlay, FaRedo, FaPause, FaClock } from 'react-icons/fa'; // 确保你已经安装了 react-icons
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState<string[]>([]);
@@ -153,9 +153,8 @@ export default function Home() {
     setShowCountdown(false);
   };
 
-  const stopCountdown = () => {
-    setIsCountingDown(false);
-    setRemainingTime(0);
+  const resetCountdown = () => {
+    setRemainingTime(countdownMinutes * 60 + countdownSeconds);
     setIsPaused(false);
   };
 
@@ -271,8 +270,8 @@ export default function Home() {
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4">
           {isCountingDown && !isFinished && (
             <>
-              <button onClick={stopCountdown} className="text-white bg-red-600 p-2 rounded-full hover:bg-red-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
-                <FaStop size={24} />
+              <button onClick={resetCountdown} className="text-white bg-blue-600 p-2 rounded-full hover:bg-blue-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
+                <FaRedo size={24} />
               </button>
               <button onClick={togglePause} className="text-white bg-yellow-600 p-2 rounded-full hover:bg-yellow-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
                 {isPaused ? <FaPlay size={24} /> : <FaPause size={24} />}

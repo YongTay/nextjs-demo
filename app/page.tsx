@@ -232,6 +232,12 @@ export default function Home() {
     localStorage.setItem('progressColor', progressColor);
   }, [progressColor]);
 
+  const closeCountdown = () => {
+    setIsCountingDown(false);
+    setIsFinished(false);
+    setShowCountdown(false);
+  };
+
   return (
     <main className="flex flex-col min-h-screen bg-black px-[10%] relative">
       {!(isCountingDown || isFinished) && (
@@ -295,20 +301,23 @@ export default function Home() {
         <div className="absolute top-1/2 right-4 transform -translate-y-1/2 flex flex-col space-y-4">
           {isCountingDown && !isFinished && (
             <>
-              <button onClick={resetCountdown} className="text-white bg-blue-600 p-2 rounded-full">
+              <button onClick={resetCountdown} className="text-white bg-blue-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
                 <FaRedo size={24} />
               </button>
-              <button onClick={togglePause} className="text-white bg-yellow-600 p-2 rounded-full">
+              <button onClick={togglePause} className="text-white bg-yellow-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
                 {isPaused ? <FaPlay size={24} /> : <FaPause size={24} />}
+              </button>
+              <button onClick={closeCountdown} className="text-white bg-red-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
+                <FaTimes size={24} />
               </button>
             </>
           )}
           {isFinished && (
             <>
-              <button onClick={restartCountdown} className="text-white bg-green-600 p-2 rounded-full">
+              <button onClick={restartCountdown} className="text-white bg-green-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
                 <FaPlay size={24} />
               </button>
-              <button onClick={showCurrentTime} className="text-white bg-blue-600 p-2 rounded-full">
+              <button onClick={showCurrentTime} className="text-white bg-blue-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
                 <FaClock size={24} />
               </button>
             </>

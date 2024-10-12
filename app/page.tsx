@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaCog, FaTimes, FaExpand, FaCompress } from 'react-icons/fa'; // 确保你已经安装了 react-icons
+import { FaCog, FaTimes, FaExpand, FaCompress, FaHourglassStart, FaPlay } from 'react-icons/fa'; // 确保你已经安装了 react-icons
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState<string[]>([]);
@@ -20,6 +20,9 @@ export default function Home() {
     return '#ffffff';
   });
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [countdownMinutes, setCountdownMinutes] = useState(0);
+  const [countdownSeconds, setCountdownSeconds] = useState(0);
 
   useEffect(() => {
     const updateTime = () => {
@@ -71,6 +74,17 @@ export default function Home() {
     }
   };
 
+  const toggleCountdown = () => {
+    setShowCountdown(!showCountdown);
+    // 这里可以添加开始倒计时的逻辑
+  };
+
+  const startCountdown = () => {
+    // 这里添加开始倒计时的逻辑
+    console.log(`Starting countdown: ${countdownMinutes} minutes and ${countdownSeconds} seconds`);
+    setShowCountdown(false);
+  };
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-black px-[10%] relative">
       <div className="flex gap-2 w-full">
@@ -82,11 +96,14 @@ export default function Home() {
           </div>
         ))}
       </div>
-      <button onClick={toggleSettings} className="absolute bottom-4 right-4 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors">
+      <button onClick={toggleSettings} className="absolute bottom-4 right-4 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
         <FaCog size={24} />
       </button>
-      <button onClick={toggleFullScreen} className="absolute bottom-4 left-4 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors">
+      <button onClick={toggleFullScreen} className="absolute bottom-4 left-4 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
         {isFullScreen ? <FaCompress size={24} /> : <FaExpand size={24} />}
+      </button>
+      <button onClick={toggleCountdown} className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors opacity-30 hover:opacity-100 focus:opacity-100">
+        <FaHourglassStart size={24} />
       </button>
       {showSettings && (
         <div className="absolute bottom-16 right-4 bg-gray-800 p-4 rounded-lg shadow-lg">
@@ -113,6 +130,46 @@ export default function Home() {
               onChange={(e) => setFontColor(e.target.value)}
               className="w-8 h-8 rounded"
             />
+          </div>
+        </div>
+      )}
+      {showCountdown && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gray-800 p-6 rounded-lg relative">
+            <button onClick={() => setShowCountdown(false)} className="absolute top-2 right-2 text-white hover:text-gray-300">
+              <FaTimes size={20} />
+            </button>
+            <h2 className="text-white text-xl mb-4">设置倒计时</h2>
+            <div className="flex items-center mb-4">
+              <label htmlFor="minutes" className="text-white mr-2">分钟:</label>
+              <input
+                type="number"
+                id="minutes"
+                value={countdownMinutes}
+                onChange={(e) => setCountdownMinutes(Math.max(0, parseInt(e.target.value) || 0))}
+                className="w-16 p-1 text-black"
+                min="0"
+              />
+            </div>
+            <div className="flex items-center mb-4">
+              <label htmlFor="seconds" className="text-white mr-2">秒数:</label>
+              <input
+                type="number"
+                id="seconds"
+                value={countdownSeconds}
+                onChange={(e) => setCountdownSeconds(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))}
+                className="w-16 p-1 text-black"
+                min="0"
+                max="59"
+              />
+            </div>
+            <button
+              onClick={startCountdown}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              <FaPlay className="inline-block mr-2" />
+              开始倒计时
+            </button>
           </div>
         </div>
       )}

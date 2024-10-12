@@ -270,20 +270,20 @@ export default function Home() {
         <div className="absolute top-1/2 right-4 transform -translate-y-1/2 flex flex-col space-y-4">
           {isCountingDown && !isFinished && (
             <>
-              <button onClick={resetCountdown} className="text-white bg-blue-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
+              <button onClick={resetCountdown} className="text-white bg-blue-600 p-2 rounded-full">
                 <FaRedo size={24} />
               </button>
-              <button onClick={togglePause} className="text-white bg-yellow-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
+              <button onClick={togglePause} className="text-white bg-yellow-600 p-2 rounded-full">
                 {isPaused ? <FaPlay size={24} /> : <FaPause size={24} />}
               </button>
             </>
           )}
           {isFinished && (
             <>
-              <button onClick={restartCountdown} className="text-white bg-green-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
+              <button onClick={restartCountdown} className="text-white bg-green-600 p-2 rounded-full">
                 <FaPlay size={24} />
               </button>
-              <button onClick={showCurrentTime} className="text-white bg-blue-600 p-2 rounded-full opacity-30 hover:opacity-100 transition-opacity">
+              <button onClick={showCurrentTime} className="text-white bg-blue-600 p-2 rounded-full">
                 <FaClock size={24} />
               </button>
             </>
